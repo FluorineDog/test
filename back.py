@@ -63,7 +63,8 @@ def exe():
             current_time = time.time()
             if current_time - last_heartbeat2 > HEARTBEAT_TIME:
                 os.write(to_front, encoder("HEART_BEAT"))
-                if is_time_to_check and check_adult_content():
+                if is_time_to_check and check_a
+dult_content():
                     os.write(to_front, encoder("PORN_DETECTED"))
                 last_heartbeat2 = current_time
                 is_time_to_check = not is_time_to_check
@@ -80,8 +81,5 @@ def check_adult_content():
             return True
     return False
 
-
-def init():
-    exe()
 if __name__ == "__main__":
-    init()
+    exe()
