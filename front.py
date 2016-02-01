@@ -84,6 +84,8 @@ def exe():
                     print("HEART_BEAT")
                     last_heartbeat = time.time()
                 elif ss == "PORN_DETECTED":
+
+                    os.write(to_back, encoder("EXIT"))
                     run_something_bad()
                     last_heartbeat = time.time()
                 elif ss == "NO_INTERNET":
@@ -115,7 +117,7 @@ def exe():
             is_time_to_exit = False         # TODO
             is_settings_modified = False    # TODO
             if is_time_to_exit:
-                os.write(to_back, "EXIT".encode())
+                os.write(to_back, encoder("EXIT"))
                 is_time_to_exit = False
                 break
             if is_settings_modified:

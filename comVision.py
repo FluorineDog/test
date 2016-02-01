@@ -23,7 +23,7 @@ class PornDetector:
         self.conn = http.client.HTTPSConnection('api.projectoxford.ai')
     def run(self):
         try:
-            os.system(r"scrot " + filename)
+            os.system("scrot " + filename)
             img_bin = open(filename, 'rb').read()
             self.conn.request("POST", "/vision/v1/analyses?%s" % params, img_bin, headers)
             response = self.conn.getresponse()

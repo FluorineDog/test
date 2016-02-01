@@ -39,13 +39,15 @@ def exe():
                 # print(ss) # TODO DEBUG
                 if ss == "HEART_BEAT":
                     last_heartbeat = time.time()
+                    continue
                 elif ss == "EXIT":
+                    print("heeha")
                     running = False
                     last_heartbeat = time.time()
                 elif ss == "SETTING_MODIFIED":
                     update_setting()
                 else:
-                    pass # TODO
+                    continue
             if not running:
                 break
         except BlockingIOError:     # no data read
@@ -67,8 +69,10 @@ def exe():
             if current_time - last_heartbeat2 > HEARTBEAT_TIME:
                 print("sending hb")
                 os.write(to_front, encoder("HEART_BEAT"))
-                if is_time_to_check and check_adult_content():
-                    os.write(to_front, encoder("PORN_DETECTED"))
+                if is_time_to_check :
+                    condition = check_adult_content()
+                    if condition != "SAFE":
+                        os.write(to_front, encoder(condition))
                 last_heartbeat2 = current_time
                 is_time_to_check = not is_time_to_check
         except BrokenPipeError:
@@ -76,13 +80,10 @@ def exe():
             exit()
 
 
+
 def check_adult_content():
-    print("checking")
-    if True:
-        db = open("debug.conf", "r")
-        if json.load(db):
-            return True
-    return False
+
+    return "PORN_DETECTED"
 
 if __name__ == "__main__":
     exe()
