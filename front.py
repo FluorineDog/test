@@ -6,9 +6,8 @@ FIFO2BACK = "anti-LOL-to-back"
 FIFO2FRONT = "anti-LOL-to-front"
 PATH_TO_SETTINGS = "jielu.conf"
 default_settings = dict(image_detect=True, text_detect=True,
-                        game_type=0, difficulty=0,
+                        game_type=0, difficulty=0, pipeRank=0
                         )
-
 
 
 HEARTBEAT_TIME = 2
@@ -19,32 +18,38 @@ def run_something_bad():
 
 
 def start_the_back():
+    default_settings["pipeRank"] += 1
     save_settings()
+    pipeRank = str(default_settings["pipeRank"])
     try:
-        os.unlink(FIFO2BACK)
+        os.unlink(FIFO2BACK + pipeRank)
     except:
         pass
     try:
-        os.unlink(FIFO2FRONT)
+        os.unlink(FIFO2FRONT + pipeRank)
     except:
         pass
-    os.mkfifo(FIFO2FRONT)
-    from_back = os.open(FIFO2FRONT, O_RDONLY)
+    os.mkfifo(FIFO2FRONT + pipeRank)
+    from_back = os.open(FIFO2FRONT + pipeRank, O_RDONLY)
     # TODO start back.py like
     # TODO os.system("python back.py > xxx.log")
     '''
     the back start,
     '''
-    ss = ""
-    ss = os.read(from_back, BUF_SIZE).decode()
+    running = True
+    while running:
+        time.sleep(1)
+        print("keep eye on")
+        for ss in os.read(from_back, BUF_SIZE).decode().split():
+            if ss == "BACK_START_SUCCESSFULLY":
+                running = False
+                break
+            else:
+                print(ss)
+                print("wtf")
     fcntl.fcntl(from_back, fcntl.F_SETFL, O_NONBLOCK)
-    ss = ss.split()[0]
-    if ss == "BACK_START_SUCCESSFULLY":
-        to_back = os.open(FIFO2BACK, O_WRONLY )
-    else:
-        print(ss)
-        print("WTF")
-        exit()
+    to_back = os.open(FIFO2BACK + pipeRank, O_WRONLY | O_NONBLOCK)
+    print(to_back)
     return from_back, to_back
 
 def warn_the_user():
@@ -76,8 +81,8 @@ def exe():
             sss = os.read(from_back, BUF_SIZE).decode()
             for ss in sss.split():
                 if ss == "HEART_BEAT":
+                    print("HEART_BEAT")
                     last_heartbeat = time.time()
-                    print(last_heartbeat)
                 elif ss == "PORN_DETECTED":
                     run_something_bad()
                     last_heartbeat = time.time()
@@ -93,10 +98,10 @@ def exe():
             current_time = time.time()
             # HEARTBEAT TIMEOUT
             if current_time - last_heartbeat > 4 * HEARTBEAT_TIME:
-                print(last_heartbeat)
                 warn_the_user()
                 start_the_back()
-                last_heartbeat = current_time
+                last_heartbeat = time.time()
+                last_heartbeat2 = time.time()
             # TODO need sleep() ?
 
 
@@ -104,7 +109,6 @@ def exe():
         try:
             current_time = time.time()
             if current_time - last_heartbeat2 >  HEARTBEAT_TIME:
-                print("beating")
                 os.write(to_back, encoder("HEART_BEAT"))
                 last_heartbeat2 = time.time()
 
@@ -123,9 +127,9 @@ def exe():
             os.close(to_back)
             os.close(from_back)
             from_back, to_back = start_the_back()
-
-
-    os.unlink(FIFO2BACK)
-    os.unlink(FIFO2FRONT)
+            last_heartbeat = time.time()
+            last_heartbeat2 = time.time()
+    os.close(to_back)
+    os.close(from_back)
 if __name__ == "__main__":
     exe()

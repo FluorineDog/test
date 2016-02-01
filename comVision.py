@@ -4,7 +4,6 @@ from os.path import join
 import os
 import json
 import time
-
 headers = {
     # Request headers
     'Content-Type': 'application/octet-stream',
@@ -16,24 +15,23 @@ params = urllib.parse.urlencode({
     'visualFeatures': 'All',
 })
 
-try:
-    conn = http.client.HTTPSConnection('api.projectoxford.ai')
-    FOLDER = "images/"
-    filename = "screenshot.jpg"
-    os.system(r"scrot tmp/%Y-%m-%d-%T-screenshot.png")
-    print(filename, end=', ')
-    time.localtime()
-    full_path = join(FOLDER, filename)
-    # print(full_path)
-    img_bin = open(full_path, 'rb').read()
-    print(len(img_bin))
-    conn.request("POST", "/vision/v1/analyses?%s" % params, img_bin, headers)
-    response = conn.getresponse()
-    data = response.read()
-    print(data)
-    data = json.loads(data.decode())
-    print(data["color"])
+filename = ".screenshot.jpg"
 
-except Exception as e:
-    print(e)    # print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
+class PornDetector:
+    def __init__(self):
+        self.conn = http.client.HTTPSConnection('api.projectoxford.ai')
+    def run(self):
+        try:
+            os.system(r"scrot " + filename)
+            img_bin = open(filename, 'rb').read()
+            self.conn.request("POST", "/vision/v1/analyses?%s" % params, img_bin, headers)
+            response = self.conn.getresponse()
+            data = response.read()
+            print(data)
+            data = json.loads(data.decode())
+            print(data["color"])
+        except:
+            pass
+    def __del__(self):
+        self.conn.close()

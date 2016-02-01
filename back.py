@@ -1,6 +1,7 @@
 import os
 import time
 import json
+import io
 from os import O_WRONLY, O_NONBLOCK, O_RDONLY
 FIFO2BACK = "anti-LOL-to-back"
 FIFO2FRONT = "anti-LOL-to-front"
@@ -20,9 +21,10 @@ def update_setting():
 
 def exe():
     update_setting()
-    to_front = os.open(FIFO2FRONT, O_WRONLY)
-    os.mkfifo(FIFO2BACK)
-    from_front = os.open(FIFO2BACK, O_RDONLY | O_NONBLOCK)
+    pipeRank =  str(settings["pipeRank"])
+    to_front = os.open(FIFO2FRONT + pipeRank, O_WRONLY)
+    os.mkfifo(FIFO2BACK + pipeRank)
+    from_front = os.open(FIFO2BACK + pipeRank, O_RDONLY | O_NONBLOCK)
     print(to_front, from_front)
     os.write(to_front, encoder("BACK_START_SUCCESSFULLY"))
     last_heartbeat = time.time()
@@ -34,7 +36,7 @@ def exe():
         try:
             sss = os.read(from_front, BUF_SIZE).decode()
             for ss in sss.split():
-                print(ss) # TODO DEBUG
+                # print(ss) # TODO DEBUG
                 if ss == "HEART_BEAT":
                     last_heartbeat = time.time()
                 elif ss == "EXIT":
@@ -63,6 +65,7 @@ def exe():
         try:
             current_time = time.time()
             if current_time - last_heartbeat2 > HEARTBEAT_TIME:
+                print("sending hb")
                 os.write(to_front, encoder("HEART_BEAT"))
                 if is_time_to_check and check_adult_content():
                     os.write(to_front, encoder("PORN_DETECTED"))
