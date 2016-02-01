@@ -12,7 +12,7 @@ class SoftwareRenderer(sdlext.SoftwareSpriteRenderSystem):
 
 
     def render(self, sprites, x=None, y=None):
-        #sdlext.fill(self.surface, BLACK)
+        sdlext.fill(self.surface, BLACK)
         super().render(sprites)
 
 
@@ -55,8 +55,7 @@ class MovementSystem(sdl2.ext.Applicator):
 class Velocity(object):
     def __init__(self):
         super(Velocity, self).__init__()
-        self.vx = 0
-        self.vy = 0
+        self.vx, self.vy = 0, 0
 
 
 
