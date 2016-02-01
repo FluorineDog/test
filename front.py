@@ -31,7 +31,7 @@ def start_the_back():
     os.mkfifo(FIFO2FRONT)
     from_back = os.open(FIFO2FRONT, O_RDONLY)
     # TODO start back.py like
-    # TODO os.system("python back.py")
+    # TODO os.system("python back.py > xxx.log")
     '''
     the back start,
     '''
