@@ -79,11 +79,9 @@ def exe():
             print("Parent brokes down. Exiting")
             exit()
 
-
-
 def check_adult_content():
-
     return "PORN_DETECTED"
+    return "NO_INTERNET"
 
 if __name__ == "__main__":
     exe()
