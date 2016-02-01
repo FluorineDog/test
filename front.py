@@ -87,6 +87,7 @@ def exe():
                 else:
                     print("shenmegui")
                     print(ss)
+                    exit()
                     pass # TODO (MAY NOT NEED)
         except BlockingIOError:     # no data read
             current_time = time.time()
