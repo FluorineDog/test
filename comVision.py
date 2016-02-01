@@ -3,6 +3,7 @@ from os import listdir
 from os.path import join
 import os
 import json
+import time
 
 headers = {
     # Request headers
@@ -18,21 +19,21 @@ params = urllib.parse.urlencode({
 try:
     conn = http.client.HTTPSConnection('api.projectoxford.ai')
     FOLDER = "images/"
-    # os.system(r"scrot tmp/%Y-%m-%d-%T-screenshot.png")
-    for filename in listdir(FOLDER):
-        print(filename, end=', ')
+    filename = "screenshot.jpg"
+    os.system(r"scrot tmp/%Y-%m-%d-%T-screenshot.png")
+    print(filename, end=', ')
+    time.localtime()
+    full_path = join(FOLDER, filename)
+    # print(full_path)
+    img_bin = open(full_path, 'rb').read()
+    print(len(img_bin))
+    conn.request("POST", "/vision/v1/analyses?%s" % params, img_bin, headers)
+    response = conn.getresponse()
+    data = response.read()
+    print(data)
+    data = json.loads(data.decode())
+    print(data["color"])
 
-        full_path = join(FOLDER, filename)
-        # print(full_path)
-        img_bin = open(full_path, 'rb').read()
-        print(len(img_bin))
-        conn.request("POST", "/vision/v1/analyses?%s" % params, img_bin, headers)
-        response = conn.getresponse()
-        data = response.read()
-        print(data)
-        data = json.loads(data.decode())
-        print(data["color"])
-    conn.close()
 except Exception as e:
     print(e)    # print("[Errno {0}] {1}".format(e.errno, e.strerror))
 

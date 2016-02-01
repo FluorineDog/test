@@ -14,14 +14,8 @@ default_settings = dict(image_detect=True, text_detect=True,
 HEARTBEAT_TIME = 2
 BUF_SIZE = 512
 def run_something_bad():
-    pass
+    pass # TODO porn detected
 
-def save_settings():
-    print(default_settings)
-    print("setting saved")
-    sfile = open(PATH_TO_SETTINGS, "w")
-    json.dump(default_settings, sfile)
-    sfile.close()
 
 
 def start_the_back():
@@ -36,7 +30,8 @@ def start_the_back():
         pass
     os.mkfifo(FIFO2FRONT)
     from_back = os.open(FIFO2FRONT, O_RDONLY)
-    # TODO start back.py
+    # TODO start back.py like
+    # TODO os.system("python back.py")
     '''
     the back start,
     '''
@@ -53,16 +48,22 @@ def start_the_back():
     return from_back, to_back
 
 def warn_the_user():
-    print("warnning")
+    print("warnning") # TODO give warning when back is killed
     pass
 
+
+
+def todo_no_internet():
+    pass    # TODO no INTERNET
+
+def save_settings():
+    print(default_settings)
+    print("setting saved")
+    sfile = open(PATH_TO_SETTINGS, "w")
+    json.dump(default_settings, sfile)
+    sfile.close()
 def encoder(ss):
     return (ss+' ').encode()
-
-class AntiLOL():
-    pass
-
-
 def exe():
     from_back, to_back = start_the_back()
 
@@ -77,14 +78,16 @@ def exe():
                 if ss == "HEART_BEAT":
                     last_heartbeat = time.time()
                     print(last_heartbeat)
-
                 elif ss == "PORN_DETECTED":
                     run_something_bad()
+                    last_heartbeat = time.time()
+                elif ss == "NO_INTERNET":
+                    todo_no_internet()
                     last_heartbeat = time.time()
                 else:
                     print("shenmegui")
                     print(ss)
-                    pass # TODO
+                    pass # TODO (MAY NOT NEED)
         except BlockingIOError:     # no data read
             current_time = time.time()
             # HEARTBEAT TIMEOUT
@@ -93,9 +96,7 @@ def exe():
                 warn_the_user()
                 start_the_back()
                 last_heartbeat = current_time
-            # sleep() ?
-        finally:
-            pass # TODO
+            # TODO need sleep() ?
 
 
         # message sender
@@ -104,7 +105,7 @@ def exe():
             if current_time - last_heartbeat2 >  HEARTBEAT_TIME:
                 print("beating")
                 os.write(to_back, encoder("HEART_BEAT"))
-                last_heartbeat2 = current_time
+                last_heartbeat2 = time.time()
 
             is_time_to_exit = False         # TODO
             is_settings_modified = False    # TODO

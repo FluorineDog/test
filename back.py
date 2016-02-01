@@ -56,6 +56,7 @@ def exe():
             else:
                 time.sleep(HEARTBEAT_TIME/2)
         finally:
+
             pass    # TODO
 
         # message sender
