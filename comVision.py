@@ -31,7 +31,7 @@ class PornDetector:
             print(data)
             data = json.loads(data.decode())
             print(data["color"])
-        except:
-            pass
+        except Exception as e:
+            print(s)
     def __del__(self):
         self.conn.close()

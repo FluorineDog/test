@@ -18,7 +18,7 @@ def run_something_bad():
 
 
 def start_the_back():
-    default_settings["pipeRank"] += 1
+    default_settings["pipeRank"] += 0
     save_settings()
     pipeRank = str(default_settings["pipeRank"])
     try:
