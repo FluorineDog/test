@@ -150,6 +150,7 @@ class PornDetector:
     def __del__(self):
         self._conn.close()
 
+
 def exe():
     init_time = time.time()
     pder = PornDetector()
