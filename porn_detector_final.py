@@ -2,7 +2,6 @@ import http.client, urllib.request, urllib.parse, urllib.error
 import os
 import json
 import time
-import textfilter.filter
 import errno
 import copy
 import socket
@@ -31,15 +30,17 @@ class PornDetector:
         self._img_bin = None
         self._is_developer_mode = False
         self.headers = {"Ocp-Apim-Subscription-Key" : '5149efd4a1ad42c68e93b89e5294e87d'}
-        self.gfw = textfilter.filter.DFAFilter()
+        # self.enable_porn =True
+        # self.enable_racy =False
         # self._cacheID = None
-    def porn_detector(self, enable_picture = True, enable_text = True, is_developer_mode = True):
+    def porn_detector(self, enable_porn = True, enable_racy = False, is_developer_mode = True):
         self._is_developer_mode = is_developer_mode
         status = 0
-        if enable_picture and status == 0:
-            status = self.porn_image()
-        if enable_text and status == 0:
-            status = self.porn_text()
+        # self.enable_racy = enable_racy
+        # self.enable_porn = enable_porn
+        if enable_porn or enable_racy:
+            status = self.porn_image(enable_porn, enable_racy)
+
         if status == 0:
             return 'OK'
         elif status == 1:
@@ -72,49 +73,48 @@ class PornDetector:
         params = urllib.parse.urlencode(params)
         return params
 
-    def porn_text(self):
-        self.update_photo()
-        params = self.params_gen(language="unk", detectOrientation=False)
-        headers = self.headers_gen({"Content-Type": "application/octet-stream"})
-        print(len(self._img_bin))
-        try:
-            self._conn.request("POST", "/vision/v1/ocr?%s" % params, self._img_bin, headers)
-            response = self._conn.getresponse()
+    # def porn_text(self):
+    #     self.update_photo()
+    #     params = self.params_gen(language="unk", detectOrientation=False)
+    #     headers = self.headers_gen({"Content-Type": "application/octet-stream"})
+    #     print(len(self._img_bin))
+    #     try:
+    #         self._conn.request("POST", "/vision/v1/ocr?%s" % params, self._img_bin, headers)
+    #         response = self._conn.getresponse()
+    #
+    #     except (socket.timeout, socket.gaierror, http.client.CannotSendRequest) as e:
+    #         print(e)
+    #         self.__del__()
+    #         self.__init__()
+    #         return -1
+    #     data = response.read()
+    #     if response.code == 200:
+    #         data = json.loads(data.decode())
+    #         for region in data["regions"]:
+    #             for line in region["lines"]:
+    #                 for word in line["words"]:
+    #                     print(word["text"], end= '')
+    #             print('')
+    #         else:
+    #             return 0
+    #
+    #         # if data["adult"]["isAdultContent"]:
+    #         #     return 1
+    #         # elif self._is_developer_mode and "Yellow" in data["color"]["dominantColors"]:
+    #         #     return 1
+    #         # else:
+    #         #     return 0
+    #     elif response.code == 500:
+    #         return -1
+    #     else:
+    #         print(response.code)
+    #         print(response.read())
+    #         return 0
+    #
+    #     pass
 
-        except (socket.timeout, socket.gaierror, http.client.CannotSendRequest) as e:
-            print(e)
-            self.__del__()
-            self.__init__()
-            return -1
-        data = response.read()
-        if response.code == 200:
-            sss = []
-            data = json.loads(data.decode())
-            for region in data["regions"]:
-                for line in region["lines"]:
-                    for word in line["words"]:
-                        sss.append(["text"])
-            sss = ''.join(sss)
-            if self.gfw.filter(sss):
-                return 1
-            else:
-                return 0
-            # if data["adult"]["isAdultContent"]:
-            #     return 1
-            # elif self._is_developer_mode and "Yellow" in data["color"]["dominantColors"]:
-            #     return 1
-            # else:
-            #     return 0
-        elif response.code == 500:
-            return -1
-        else:
-            print(response.code)
-            print(response.read())
-            return 0
+    def porn_image(self, enable_porn = True, enable_racy = False):
 
-        pass
-
-    def porn_image(self):
         self.update_photo()
         params = self.params_gen(visualFeatures = "Adult,Color")
         headers = self.headers_gen({"Content-Type": "application/octet-stream"})
@@ -132,7 +132,9 @@ class PornDetector:
         if response.code == 200:
             data = json.loads(data.decode())
             print(data)
-            if data["adult"]["isAdultContent"]:
+            if enable_porn and data["adult"]["isAdultContent"]:
+                return 1
+            elif enable_racy and data["adult"]["isRacyContent"]:
                 return 1
             elif self._is_developer_mode and "Yellow" in data["color"]["dominantColors"]:
                 return 1
